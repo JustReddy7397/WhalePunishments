@@ -6,6 +6,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public class TextUtil {
 
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
-    public static void sendMessage(Player player, String format) {
-        Audience audience = WhalePunishments.getInstance().getAdventure().player(player);
+    public static void sendMessage(CommandSender player, String format) {
+        Audience audience = WhalePunishments.getInstance().getAdventure().sender(player);
         audience.sendMessage(MINI_MESSAGE.deserialize(format));
     }
 

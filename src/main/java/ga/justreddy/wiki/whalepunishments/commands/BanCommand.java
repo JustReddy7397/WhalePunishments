@@ -6,6 +6,7 @@ import ga.justreddy.wiki.whalepunishments.enums.PunishmentType;
 import ga.justreddy.wiki.whalepunishments.storage.entities.PunishmentEntity;
 import ga.justreddy.wiki.whalepunishments.util.TextUtil;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Default;
@@ -19,7 +20,7 @@ public class BanCommand {
 
     @Command("ban")
     @CommandPermission("whalepunishments.ban")
-    public void ban(Player sender, OfflinePlayer target, String time, @Switch("s") boolean silent, @Default("No Reason Specified") String reason, @Switch("-server") boolean server) {
+    public void ban(ConsoleCommandSender sender, OfflinePlayer target, String time, @Switch("s") boolean silent, @Switch("server") boolean server, @Default("No Reason Specified") String reason) {
         // Ban the player
 
         if (!sender.hasPermission("whalepunishments.ban")) {
@@ -43,7 +44,7 @@ public class BanCommand {
 
         PunishmentEntity entity = new PunishmentEntity();
         entity.setUuid(target.getUniqueId().toString());
-        entity.setPunisher(sender.getUniqueId().toString());
+        entity.setPunisher(sender instanceof Player ? ((Player) sender).getUniqueId().toString() : "CONSOLE");
         entity.setReason(reason);
         entity.setType(PunishmentType.BAN);
         entity.setDuration(-1L);

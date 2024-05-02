@@ -26,7 +26,11 @@ public abstract class Storage {
 
     public abstract boolean removePunishment(UUID uuid, PunishmentType type, String server);
 
+    public abstract boolean removePunishment(UUID uuid, PunishmentType type, String server, String removedBy);
+
     public abstract boolean removePunishment(String ip, PunishmentType type, String server);
+
+    public abstract boolean removePunishment(String ip, PunishmentType type, String server, String removedBy);
 
     public abstract Set<PunishmentEntity> getAllPunishments();
 

@@ -9,21 +9,35 @@ import ga.justreddy.wiki.whalepunishments.enums.PunishmentType;
 import ga.justreddy.wiki.whalepunishments.storage.Storage;
 import ga.justreddy.wiki.whalepunishments.storage.entities.PunishmentEntity;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
 /**
  * @author JustReddy
  */
-public class MYSQLStorage extends Storage {
+public class SequalStorage extends Storage {
 
     private final Dao<PunishmentEntity, String> punishmentDao;
 
-    public MYSQLStorage(String host, String database, String username, String password, int port) {
+    public SequalStorage(String type, String host, String database, String username, String password, int port) {
         try {
+            ConnectionSource connectionSource = null;
 
-            ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true&characterEncoding=utf8", username, password);
+            switch (type) {
+                case "mysql" -> {
+                    connectionSource = new JdbcConnectionSource("jdbc:mysql://" + host + ":" + port + "/" + database + "?autoReconnect=true&characterEncoding=utf8", username, password);
+                }
+                case "postgresql" -> {
+                    connectionSource = new JdbcConnectionSource("jdbc:postgresql://" + host + ":" + port + "/" + database, username, password);
+                }
+                case "mariadb" -> {
+                    connectionSource = new JdbcConnectionSource("jdbc:mariadb://" + host + ":" + port + "/" + database, username, password);
+                }
+                default -> {
+                    throw new IllegalArgumentException("Invalid storage type: " + type);
+                }
+            }
+
             TableUtils.createTableIfNotExists(connectionSource, PunishmentEntity.class);
             punishmentDao = DaoManager.createDao(connectionSource, PunishmentEntity.class);
         } catch (SQLException ex) {
@@ -143,6 +157,11 @@ public class MYSQLStorage extends Storage {
 
     @Override
     public boolean removePunishment(UUID uuid, PunishmentType type, String server) {
+        return removePunishment(uuid, type, server, "CONSOLE");
+    }
+
+    @Override
+    public boolean removePunishment(UUID uuid, PunishmentType type, String server, String removedBy) {
         if (!isPunishmentActive(uuid, type, server)) return false;
 
         try {
@@ -162,6 +181,8 @@ public class MYSQLStorage extends Storage {
                     punishmentDao.queryForFieldValues(lookup);
             for (PunishmentEntity punishmentEntity : punishmentEntities) {
                 punishmentEntity.setActive(false);
+                punishmentEntity.setRemovedBy(removedBy);
+                punishmentEntity.setExpireTimestamp(System.currentTimeMillis());
                 punishmentDao.update(punishmentEntity);
             }
         } catch (SQLException ex) {
@@ -172,6 +193,11 @@ public class MYSQLStorage extends Storage {
 
     @Override
     public boolean removePunishment(String ip, PunishmentType type, String server) {
+        return removePunishment(ip, type, server, "CONSOLE");
+    }
+
+    @Override
+    public boolean removePunishment(String ip, PunishmentType type, String server, String removedBy) {
         if (!isPunishmentActive(ip, type, server)) return false;
 
         try {
@@ -191,13 +217,14 @@ public class MYSQLStorage extends Storage {
                     punishmentDao.queryForFieldValues(lookup);
             for (PunishmentEntity punishmentEntity : punishmentEntities) {
                 punishmentEntity.setActive(false);
+                punishmentEntity.setRemovedBy(removedBy);
+                punishmentEntity.setExpireTimestamp(System.currentTimeMillis());
                 punishmentDao.update(punishmentEntity);
             }
         } catch (SQLException ex) {
             throw new RuntimeException("Failed to remove punishment", ex);
         }
-        return true;
-    }
+        return true;    }
 
     @Override
     public Set<PunishmentEntity> getAllPunishments() {
@@ -402,12 +429,28 @@ public class MYSQLStorage extends Storage {
 
     @Override
     public Set<PunishmentEntity> getAllActivePunishments(UUID uuid, String server) {
-        return null;
+        try {
+            Map<String, Object> lookup = new HashMap<>();
+            lookup.put("uuid", uuid.toString());
+            lookup.put("server", server);
+            lookup.put("active", true);
+            return new HashSet<>(punishmentDao.queryForFieldValues(lookup));
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to get all active punishments for uuid: " + uuid + " and server: " + server, ex);
+        }
     }
 
     @Override
     public Set<PunishmentEntity> getAllActivePunishments(String ip, String server) {
-        return null;
+        try {
+            Map<String, Object> lookup = new HashMap<>();
+            lookup.put("ip", ip);
+            lookup.put("server", server);
+            lookup.put("active", true);
+            return new HashSet<>(punishmentDao.queryForFieldValues(lookup));
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to get all active punishments for ip: " + ip + " and server: " + server, ex);
+        }
     }
 
     @Override

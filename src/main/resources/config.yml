@@ -14,13 +14,11 @@ storage: "sqlite"
 
 # Only touch this if you have the storage set to a remote database
 data:
-  # Port not needed as it will default to the default port of the database
   host: "localhost"
   database: "whalepunishments"
   username: "root"
   password: "password"
-
-  # This will override the host, database, username and password sections above
+  port: 3306
   mongo-uri: ""
 
 settings:
