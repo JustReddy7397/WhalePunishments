@@ -1,0 +1,58 @@
+# The name of the server, used for server-specific punishments.
+#
+# - When set to "global", this setting is effectively ignored.
+server: "global"
+
+# Database options:
+
+# Remote: MySQL -> MariaDB -> PostgresSQL -> MongoDB
+# FlatFile/Local: SQLite -> H2
+# Readable & Editable: YAML -> JSON
+# Default is SQLite
+
+storage: "sqlite"
+
+# Only touch this if you have the storage set to a remote database
+data:
+  # Port not needed as it will default to the default port of the database
+  host: "localhost"
+  database: "whalepunishments"
+  username: "root"
+  password: "password"
+
+  # This will override the host, database, username and password sections above
+  mongo-uri: ""
+
+settings:
+  bungeecord:
+    enabled: false
+    # Recommended to set to true if you have a BungeeCord network
+    # Unless you want to have per-server bans
+    # However the bungeecord plugin can handle that for you
+    disable-commands: false
+
+# All messages here are in MiniMessage format
+# https://docs.advntr.dev/minimessage/format.html
+messages:
+  # The prefix for all messages sent by the plugin.
+  # Set to "" to disable.
+  prefix: "<gray>[<aqua>WhalePunishments<gray>] <dark_gray>"
+  command-disabled: "<prefix><red>This command is disabled."
+  invalid-permissions: "<prefix><red>You do not have permission to use this command."
+  punishment-type-strings:
+    permanent: "PERMANENTLY"
+    temporary: "TEMPORARILY"
+    ip-permanent: "PREMANENTLY IP"
+    ip-temporary: "TEMPORARILY IP"
+    warn: "WARNED"
+  formats:
+    ban:
+      - "<aqua>You are <type> <dark_aqua><bold>BANNED <aqua>from this server!"
+      - ""
+      - "<aqua>Time left: <dark_aqua><time>"
+      - ""
+      - "<aqua>Reason: <dark_aqua><bold><reason> <gray>[#<banid>]"
+      - ""
+      - "<aqua>Find out more at <dark_aqua><bold>website"
+      - ""
+      - "<gray>Sharing your Ban ID may affect the process of getting unbanned."

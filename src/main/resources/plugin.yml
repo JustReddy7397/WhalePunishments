@@ -1,0 +1,4 @@
+name: WhalePunishments
+version: '${version}'
+main: ga.justreddy.wiki.whalepunishments.WhalePunishments
+api-version: '1.20'
